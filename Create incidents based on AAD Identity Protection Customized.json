@@ -1,0 +1,87 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/216e44c2-77d0-4860-93cd-e3f35eb5753e')]",
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/216e44c2-77d0-4860-93cd-e3f35eb5753e')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+            "kind": "Scheduled",
+            "apiVersion": "2022-10-01-preview",
+            "properties": {
+                "displayName": " Create incidents based on AAD Identity Protection alerts customized",
+                "description": "AAD Identity Protection のイベントを Azure AD ユーザーで検知させるためのカスタムルール",
+                "severity": "Medium",
+                "enabled": true,
+                "query": "SecurityAlert\r\n| where ProductName == \"Azure Active Directory Identity Protection\"\r\n| mv-expand Entity = todynamic(Entities)\r\n| where Entity.Type == \"account\"\r\n| extend AadTenantId = tostring(Entity.AadTenantId)\r\n| extend AadUserId = tostring(Entity.AadUserId)\r\n| join kind=inner (\r\n    IdentityInfo\r\n    | where TimeGenerated > ago(7d)\r\n    | distinct AccountTenantId, AccountObjectId, AccountUPN, AccountDisplayName\r\n    | extend UserAccount = AccountUPN\r\n    | extend UserName = AccountDisplayName\r\n    | where isnotempty(AccountDisplayName) and isnotempty(UserAccount)\r\n    | project AccountTenantId, AccountObjectId, UserAccount, UserName\r\n    )\r\n    on\r\n    $left.AadTenantId == $right.AccountTenantId,\r\n    $left.AadUserId == $right.AccountObjectId\r\n| extend CompromisedEntity = iff(CompromisedEntity == \"N/A\" or isempty(CompromisedEntity), UserAccount, CompromisedEntity)\r\n| project-away AadTenantId, AccountTenantId, AccountObjectId",
+                "queryFrequency": "PT15M",
+                "queryPeriod": "PT15M",
+                "triggerOperator": "GreaterThan",
+                "triggerThreshold": 0,
+                "suppressionDuration": "PT5H",
+                "suppressionEnabled": false,
+                "tactics": [
+                    "InitialAccess"
+                ],
+                "techniques": [],
+                "alertRuleTemplateName": null,
+                "incidentConfiguration": {
+                    "createIncident": true,
+                    "groupingConfiguration": {
+                        "enabled": false,
+                        "reopenClosedIncident": false,
+                        "lookbackDuration": "PT5H",
+                        "matchingMethod": "AllEntities",
+                        "groupByEntities": [],
+                        "groupByAlertDetails": [],
+                        "groupByCustomDetails": []
+                    }
+                },
+                "eventGroupingSettings": {
+                    "aggregationKind": "AlertPerResult"
+                },
+                "alertDetailsOverride": {
+                    "alertDisplayNameFormat": "{{AlertName}} by {{UserName}}",
+                    "alertDescriptionFormat": "{{Description}}",
+                    "alertDynamicProperties": []
+                },
+                "customDetails": null,
+                "entityMappings": [
+                    {
+                        "entityType": "Account",
+                        "fieldMappings": [
+                            {
+                                "identifier": "AadUserId",
+                                "columnName": "AadUserId"
+                            }
+                        ]
+                    },
+                    {
+                        "entityType": "Account",
+                        "fieldMappings": [
+                            {
+                                "identifier": "FullName",
+                                "columnName": "UserName"
+                            }
+                        ]
+                    },
+                    {
+                        "entityType": "Account",
+                        "fieldMappings": [
+                            {
+                                "identifier": "Name",
+                                "columnName": "UserAccount"
+                            }
+                        ]
+                    }
+                ],
+                "sentinelEntitiesMappings": null
+            }
+        }
+    ]
+}
