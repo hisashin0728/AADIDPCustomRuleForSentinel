@@ -10,7 +10,9 @@ https://learn.microsoft.com/en-us/azure/sentinel/whats-new#account-enrichment-fi
 Customer wants to generate User Account and User Name entities from Azure AD Identity Protection Alerts, so this custom package will provide these entities by scheduled analytics query on Microsoft Sentinel.
 
 # How to Deploy
+Download json file as Resouce Manager Templates, and import this from Microsoft Sentinel.
 
+https://github.com/hisashin0728/AADIDPCustomRuleForSentinel/blob/main/Create%20incidents%20based%20on%20AAD%20Identity%20Protection%20Customized.json
 
 # Current KQL
 
