@@ -2,8 +2,8 @@
 As of September 30, 2022, alerts coming from the Azure Active Directory Identity Protection connector no longer contain the following fields:
 
 CompromisedEntity
-ExtendedProperties["User Account"]
-ExtendedProperties["User Name”]
+- ExtendedProperties["User Account"]
+- ExtendedProperties["User Name”]
 
 https://learn.microsoft.com/en-us/azure/sentinel/whats-new#account-enrichment-fields-removed-from-azure-ad-identity-protection-connector
 
