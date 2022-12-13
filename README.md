@@ -1,7 +1,7 @@
 # AADIDPCustomRuleForSentinel
 As of September 30, 2022, alerts coming from the Azure Active Directory Identity Protection connector no longer contain the following fields:
 
-CompromisedEntity
+- CompromisedEntity
 - ExtendedProperties["User Account"]
 - ExtendedProperties["User Name”]
 
