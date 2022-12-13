@@ -9,10 +9,16 @@ https://learn.microsoft.com/en-us/azure/sentinel/whats-new#account-enrichment-fi
 
 Customer wants to generate User Account and User Name entities from Azure AD Identity Protection Alerts, so this custom package will provide these entities by scheduled analytics query on Microsoft Sentinel.
 
+<img width="933" alt="image" src="https://user-images.githubusercontent.com/55295601/207201392-2485c56b-8799-4c29-9ca2-2826eb7dd80e.png">
+
 # Requirements
 Customer needs to prepare following requirements:
 
 - If you haven't already, enable the UEBA solution to sync the IdentityInfo table with your Azure AD logs.
+
+# Not Supported
+- Due to schedule rule, incidents will be generated as only "Medium" Severity.
+    - Default AAD IDP Connector and "Microsoft Security" rule supports each severities (High/Medium/Low) from AAD IDP Alerts, but this schedule rule can support Medium Severity.
 
 # How to Deploy
 Download json file as Resouce Manager Templates, and import this from Microsoft Sentinel.
