@@ -18,12 +18,12 @@
                 "description": "AAD Identity Protection のイベントを Azure AD ユーザーで検知させるためのカスタムルール",
                 "severity": "Medium",
                 "enabled": true,
-                "query": "SecurityAlert\r\n| where ProductName == \"Azure Active Directory Identity Protection\"\r\n| mv-expand Entity = todynamic(Entities)\r\n| where Entity.Type == \"account\"\r\n| extend AadTenantId = tostring(Entity.AadTenantId)\r\n| extend AadUserId = tostring(Entity.AadUserId)\r\n| join kind=inner (\r\n    IdentityInfo\r\n    | where TimeGenerated > ago(7d)\r\n    | distinct AccountTenantId, AccountObjectId, AccountUPN, AccountDisplayName\r\n    | extend UserAccount = AccountUPN\r\n    | extend UserName = AccountDisplayName\r\n    | where isnotempty(AccountDisplayName) and isnotempty(UserAccount)\r\n    | project AccountTenantId, AccountObjectId, UserAccount, UserName\r\n    )\r\n    on\r\n    $left.AadTenantId == $right.AccountTenantId,\r\n    $left.AadUserId == $right.AccountObjectId\r\n| extend CompromisedEntity = iff(CompromisedEntity == \"N/A\" or isempty(CompromisedEntity), UserAccount, CompromisedEntity)\r\n| project-away AadTenantId, AccountTenantId, AccountObjectId",
-                "queryFrequency": "PT15M",
-                "queryPeriod": "PT15M",
+                "query": "SecurityAlert\r\n| where TimeGenerated > ago(1h)\r\n    | where ProductName == \"Azure Active Directory Identity Protection\"\r\n| mv-expand Entity = todynamic(Entities)\r\n| where Entity.Type == \"account\"\r\n| extend AadTenantId = tostring(Entity.AadTenantId)\r\n| extend AadUserId = tostring(Entity.AadUserId)\r\n| join kind=inner (\r\n    IdentityInfo\r\n    | where TimeGenerated > ago(14d)\r\n    | distinct AccountTenantId, AccountObjectId, AccountUPN, AccountDisplayName\r\n    | extend UserAccount = AccountUPN\r\n    | extend UserName = AccountDisplayName\r\n    | where isnotempty(AccountDisplayName) and isnotempty(UserAccount)\r\n    | project AccountTenantId, AccountObjectId, UserAccount, UserName\r\n    )\r\n    on\r\n    $left.AadTenantId == $right.AccountTenantId,\r\n    $left.AadUserId == $right.AccountObjectId\r\n| extend CompromisedEntity = iff(CompromisedEntity == \"N/A\" or isempty(CompromisedEntity), UserAccount, CompromisedEntity)\r\n| project-away AadTenantId, AccountTenantId, AccountObjectId",
+                "queryFrequency": "PT1H",
+                "queryPeriod": "PT14D",
                 "triggerOperator": "GreaterThan",
                 "triggerThreshold": 0,
-                "suppressionDuration": "PT5H",
+                "suppressionDuration": "PT1H",
                 "suppressionEnabled": false,
                 "tactics": [
                     "InitialAccess"
@@ -35,7 +35,7 @@
                     "groupingConfiguration": {
                         "enabled": false,
                         "reopenClosedIncident": false,
-                        "lookbackDuration": "PT5H",
+                        "lookbackDuration": "PT14D",
                         "matchingMethod": "AllEntities",
                         "groupByEntities": [],
                         "groupByAlertDetails": [],
