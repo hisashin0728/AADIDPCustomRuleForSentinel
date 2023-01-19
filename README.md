@@ -29,6 +29,7 @@ https://github.com/hisashin0728/AADIDPCustomRuleForSentinel/blob/main/Create%20i
 
 ```
 SecurityAlert
+| where TimeGenerated > ago(1h)
 | where ProductName == "Azure Active Directory Identity Protection"
 | mv-expand Entity = todynamic(Entities)
 | where Entity.Type == "account"
@@ -36,7 +37,7 @@ SecurityAlert
 | extend AadUserId = tostring(Entity.AadUserId)
 | join kind=inner (
     IdentityInfo
-    | where TimeGenerated > ago(7d)
+    | where TimeGenerated > ago(14d)
     | distinct AccountTenantId, AccountObjectId, AccountUPN, AccountDisplayName
     | extend UserAccount = AccountUPN
     | extend UserName = AccountDisplayName
